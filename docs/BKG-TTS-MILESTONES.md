@@ -2,6 +2,10 @@
 
 Status: Planung und Audit zuerst; Umsetzung fortlaufend bis alle Milestones abgeschlossen oder nachweislich blockiert sind.
 
+## Autoritative Zig-Regeln
+
+Die verbindliche Quelle und die bereits festgelegten Layer-Verträge sind zusätzlich in [`docs/BKG-ZIG-AUTHORITY-AND-LAYERS.md`](BKG-ZIG-AUTHORITY-AND-LAYERS.md) dokumentiert. Kanonischer absoluter Pfad auf dem BKG-System: `/srv/bkg/playground/zig-docs-bkg`. Der lokale Inhalt ist in dieser GitHub-Sitzung nicht direkt erreichbar und darf nicht als bereits gelesen oder vollständig auditiert ausgegeben werden. Vor Implementierung muss er über einen autorisierten Zugriff tatsächlich geprüft werden.
+
 ## Verbindliche Regeln
 
 1. **Nur Pull Requests:** Niemals direkt auf `main` schreiben. Jeder Milestone erhält einen eigenen Branch und einen eigenen PR. Änderungen an demselben Pfad werden sequenziell vorgenommen.
