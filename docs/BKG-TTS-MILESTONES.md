@@ -2,6 +2,10 @@
 
 Status: Planung und Audit zuerst; Umsetzung fortlaufend bis alle Milestones abgeschlossen oder nachweislich blockiert sind.
 
+## Autoritative Zig-Regeln
+
+Die verbindliche Quelle und die bereits festgelegten Layer-Verträge sind zusätzlich in [`docs/BKG-ZIG-AUTHORITY-AND-LAYERS.md`](BKG-ZIG-AUTHORITY-AND-LAYERS.md) dokumentiert. Kanonischer absoluter Pfad auf dem BKG-System: `/srv/bkg/playground/zig-docs-bkg`. Der lokale Inhalt ist in dieser GitHub-Sitzung nicht direkt erreichbar und darf nicht als bereits gelesen oder vollständig auditiert ausgegeben werden. Vor Implementierung muss er über einen autorisierten Zugriff tatsächlich geprüft werden.
+
 ## Verbindliche Regeln
 
 1. **Nur Pull Requests:** Niemals direkt auf `main` schreiben. Jeder Milestone erhält einen eigenen Branch und einen eigenen PR. Änderungen an demselben Pfad werden sequenziell vorgenommen.
@@ -9,11 +13,15 @@ Status: Planung und Audit zuerst; Umsetzung fortlaufend bis alle Milestones abge
 3. **PR-Lebenszyklus:** Ein PR darf automatisch geschlossen werden, wenn nach Prüfung kein Feature, kein notwendiger Fix und keine relevante Dokumentationsänderung übrig bleibt oder sein Diff ausschließlich unbeabsichtigten Code-/Feature-Drift enthält. Vor dem Schließen Diff und Status dokumentieren. Ein PR mit gültigen Änderungen wird nicht allein wegen fehlender CI oder aus Zeitgründen geschlossen. Merge nur bei erfüllten Akzeptanzkriterien und grünen erforderlichen Checks; keine automatische Umgehung von Branch-Schutz oder Reviews.
 4. **Zwei unabhängige Reviews vor Implementierung:** Review A prüft Framework-Schichten, Build, Paketmanifest und vorhandene Bibliotheken. Review B prüft TTS-Architektur, Harness-Events, Datenschutz, API-Sicherheit und Erhalt bestehender Funktionen. Ergebnisse samt Datei-/Zeilenbelegen in `docs/` festhalten. Keine Reviews als erfolgt ausgeben, solange sie nicht tatsächlich vorliegen.
 5. **Zig und Framework zuerst:** Backend und Kernlogik in Zig, ausschließlich innerhalb der vorhandenen BKG-Schichten. TypeScript nur dort, wo die VS-Code-Extension-API es erfordert. Kein paralleles Ersatz-Framework, keine Vendor-Code-Kopie, keine Platzhalter, keine Fake-Events und keine README-only-Milestones.
-6. **Schichten nicht umgehen:** `zig.vanilla → banana.bkg → zig-body.bkg → zig-app.bkg`. Upstream-Zig bleibt Referenz und wird nicht als BKG-Ebene missbraucht. Framework-Lücken in der richtigen Schicht beheben, testen und erst danach in der App verwenden.
+6. **Vanilla und Banana strikt trennen:** Reihenfolge `zig.vanilla → banana.bkg → zig-body.bkg → zig-app.bkg`. `zig.vanilla` ist unveränderter Upstream-Zig-Referenzstand. Niemals BKG-Code, App-Code, Workarounds oder eigene Patches dort eintragen. `banana.bkg` ist die eigenständige BKG-Zig-Fork-Schicht; nur BKG-spezifische Compiler-/Sprachänderungen gehören dorthin. Allgemeine Framework-APIs und Bibliotheken gehören in `zig-body.bkg`; Produktkomposition und TTS-App gehören in `zig-app.bkg`. Abhängigkeiten zeigen nur von einer Schicht auf die darunterliegende. Keine Rückwärtsabhängigkeiten, keine Umgehung der BKG-API durch Upstream-Interna. Vor jeder Änderung die kanonischen Regeln unter `/srv/bkg/playground/zig-docs-bkg` und die verbindlichen Repository-Dokumente prüfen. Bei Konflikten oder fehlenden Regeln erst dokumentieren und klären, nicht stillschweigend entscheiden. Vanilla-Updates dürfen BKG-Patches nicht überschreiben; Banana-Änderungen müssen gegen die festgelegte Vanilla-Basis nachvollziehbar sein. Jeder PR nennt betroffene Schicht und Begründung.
 7. **Bestehende Funktion erhalten:** Das bestehende `.bkgtts/`-Verhalten, die Copilot-Extension, bestehende Hooks und Konfigurationen zuerst inventarisieren. Migration schrittweise, mit Rückweg und ohne stilles Entfernen funktionierender Funktionen.
 8. **Echte Ergebnisse:** Builds, Tests, CI und Plattformabdeckung nur als erfolgreich melden, wenn tatsächlich ausgeführt. Nicht getestete Harnesses/Plattformen ausdrücklich kennzeichnen.
 9. **Sicherheit:** API zunächst nur an `127.0.0.1` binden. Schlüssel nur einmal im Klartext ausgeben, ausschließlich Hashes speichern, Schlüssel nie protokollieren, Widerruf sofort wirksam machen. Geheimnisse vor Synthese, Persistenz und Diagnoseausgaben redigieren.
 10. **Keine ungefragten Pushes auf `main`:** Branches und PRs sind erlaubt; kein direkter Main-Push. PR-Merge folgt den Regeln des Repositories und den Checks.
+
+## Verbindlicher App-Ort
+
+Die neue App liegt im Repository-Root unter `bkg-tts.zig/`. Dieses Verzeichnis ist Produktcode der `zig-app.bkg`-Schicht. Es bindet `zig-body.bkg` nur über die dokumentierte lokale Framework-Abhängigkeit und ausschließlich benötigte Module ein. App-Code gehört weder nach `zig.vanilla` noch nach `banana.bkg` oder in Framework-Quellordner. Bestehende `.bkgtts/`-Dateien bleiben während Audit und Migration erhalten und werden nicht als Zielordner für die neue Zig-App verwendet. TypeScript bleibt auf die notwendige VS-Code-Extension-Grenze beschränkt; Kernlogik, Events, Auth/API und Orchestrierung sind Zig.
 
 ## Zielbild
 
@@ -25,11 +33,14 @@ Unterstützte Harness-Ziele: GitHub Copilot Chat, Claude Code, OpenAI Codex, Ope
 
 ### M0 — Audit und zwei Reviews
 - [ ] Vollständigen Repository- und `.bkgtts/`-Bestand erfassen.
+- [ ] Kanonische Vanilla-/Banana-Regeln und Layer-Verträge aus dem verbindlichen Regelwerk prüfen.
+- [ ] Root-Ziel `bkg-tts.zig/` als App-Schicht bestätigen, ohne Code in Vanilla, Banana oder Framework-Quellordner abzulegen.
 - [ ] BKG-Framework-Module und Schichtgrenzen verifizieren.
 - [ ] `build.zig.zon`-Pfade und CLI-Einstieg mit einem echten Build prüfen; Manifest nicht anhand der README beurteilen.
 - [ ] Review A: Framework, Build, Paketpfade und Wiederverwendung.
 - [ ] Review B: TTS, Harness-Live-Events, Sicherheit, Migration und Accessibility.
 - [ ] Befunde mit konkreten Pfaden und reproduzierbaren Prüfungen unter `docs/` dokumentieren.
+- [ ] Root-Verzeichnis `bkg-tts.zig/` für die neue App anlegen; bestehende `.bkgtts/`-Funktionen nicht verschieben oder löschen.
 - Akzeptanz: Beide Reviews sind tatsächlich abgeschlossen; Ausgangs-Buildstatus und bestehende Funktionen sind dokumentiert.
 
 ### M1 — Gemeinsamer Ereigniskern
@@ -111,7 +122,7 @@ Ein grüner CI-Lauf allein beweist nicht die Funktionalität. Relevante End-to-E
 
 | Milestone | Status | Branch/PR | Build/Test | Review / Hinweise |
 |---|---|---|---|---|
-| M0 | offen | noch nicht erstellt | Audit erforderlich | Zwei unabhängige Reviews ausstehend |
+| M0 | offen | eigener PR erforderlich | Audit erforderlich | Vanilla/Banana-Grenzen und Root-App-Pfad verbindlich; zwei unabhängige Reviews ausstehend |
 | M1 | offen | noch nicht erstellt | nicht ausgeführt | abhängig von M0 |
 | M2 | offen | noch nicht erstellt | nicht ausgeführt | abhängig von M1 |
 | M3 | offen | noch nicht erstellt | nicht ausgeführt | abhängig von M1 |
