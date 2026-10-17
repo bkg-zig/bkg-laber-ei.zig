@@ -29,6 +29,7 @@ Never mark `DONE` just because code was written or a PR was opened.
 
 | ID | Task / deliverable | Owner | Target paths / boundaries | Branch / PR | Depends on | Status |
 |---|---|---|---|---|---|---|
+| DOCS-PUBLIC-SANITIZATION | Prepare a redacted public copy of the BKG Zig documentation | Copilot SDK assistant (current session) | `docs/zig-docs-bkg/` only; preserve original `zig-docs.bkg/`; exclude custom license pending review | `docs/sanitized-zig-docs-public` / PR not created | User authorization; local source review | REVIEW |
 | M0-AUDIT | Repository and `.bkgtts/` inventory; inspect build manifests and available framework APIs | UNASSIGNED | Audit/report files under `docs/`; no product implementation | Not created | Access to repo and local canonical rules | AVAILABLE |
 | M0-REVIEW-A | Independent review: layers, build, package paths, framework reuse | UNASSIGNED | Review report under `docs/`; no implementation edits | Not created | M0-AUDIT evidence | AVAILABLE |
 | M0-REVIEW-B | Independent review: TTS design, harness events, privacy, auth, migration, accessibility | UNASSIGNED | Review report under `docs/`; no implementation edits | Not created | M0-AUDIT evidence | AVAILABLE |
@@ -43,3 +44,5 @@ Append concise, dated entries. Link the PR/commit and state whether a point is a
 - 2026-10-18 — DECISION: Layer order is `zig.vanilla → banana.bkg → zig-body.bkg → zig-app.bkg`; no bypass or reverse dependency.
 - 2026-10-18 — RULE: Canonical local rules path is `/srv/bkg/playground/zig-docs-bkg`. The path was provided by the project owner; do not claim its contents were read unless access was actually available.
 - 2026-10-18 — STATUS: M0's two independent reviews are still outstanding until separate review evidence is added here.
+- 2026-10-17 — STATUS: DOCS-PUBLIC-SANITIZATION claimed on `docs/sanitized-zig-docs-public`. Prepare only redacted copies under `docs/zig-docs-bkg/`; leave `zig-docs.bkg/` untouched and exclude its custom license pending separate review. Publish by PR, not by pushing to `main`.
+- 2026-10-17 — REVIEW: Prepared `docs/zig-docs-bkg/{README.md,ARCHITECTURE.md,DEVELOPMENT.md}` as sanitized copies; no original source files or license were included. A local pattern scan found no email, credential-like assignment, private IP, private-key block, host path, source-only project name, remote URL, or private branch reference. `git diff --check` passed. Source originals remain untracked and untouched; only the explicit public-copy paths and this coordination entry are in scope.
