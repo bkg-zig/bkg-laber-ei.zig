@@ -2,7 +2,7 @@
   "name": "copilot-tts",
   "displayName": "Copilot TTS - Read Responses Aloud",
   "description": "Reads GitHub Copilot Chat responses aloud using the on-device TTS model",
-  "version": "1.6.18",
+  "version": "1.6.20",
   "publisher": "pavel-piha",
   "repository": {
     "type": "git",
@@ -84,6 +84,16 @@
       {
         "command": "copilot-tts.toggleChatMode",
         "title": "Toggle TTS Chat Mode (auto-read all responses)",
+        "category": "Copilot TTS"
+      },
+      {
+        "command": "copilot-tts.refreshFiles",
+        "title": "Refresh Copilot TTS Files",
+        "category": "Copilot TTS"
+      },
+      {
+        "command": "copilot-tts.openFile",
+        "title": "Open Copilot TTS File",
         "category": "Copilot TTS"
       }
     ],
@@ -184,6 +194,13 @@
       }
     },
     "views": {
+      "explorer": [
+        {
+          "id": "copilot-tts.files",
+          "name": "Copilot TTS Files",
+          "icon": "icon.png"
+        }
+      ],
       "panel": [
         {
           "type": "webview",
@@ -206,6 +223,20 @@
       }
     ],
     "menus": {
+      "view/title": [
+        {
+          "command": "copilot-tts.refreshFiles",
+          "when": "view == copilot-tts.files",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "copilot-tts.openFile",
+          "when": "view == copilot-tts.files && viewItem == copilotTtsFile",
+          "group": "inline"
+        }
+      ],
       "editor/context": [
         {
           "command": "copilot-tts.stopReading",

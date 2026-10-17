@@ -22,6 +22,22 @@ Supports macOS, Windows 11, and Linux. In VS Code Remote sessions running a Linu
 | Stop playback                 | Click **Stop**, run `copilot-tts.stopReading`, or use `Ctrl+Shift+6` on Windows and macOS |
 | Change voice                  | Voice dropdown in the panel                                                               |
 | Change speed                  | Speed dropdown in the panel or status bar                                                 |
+| Browse extension files        | **Copilot TTS Files** view in the Explorer sidebar                                        |
+
+The Explorer view shows files created in VS Code's extension storage, including
+the managed runtime and TTS hook configuration. Expand **Extension data** to
+browse folders; select a file to open it. These files are stored separately
+from the project workspace.
+
+## Chat Mode API
+
+The local TTS server exposes the Chat Mode state at `GET /chat-mode`. Set it
+with `PUT /chat-mode` and a JSON body such as `{"enabled": true}` or
+`{"enabled": false}`. The VS Code extension synchronizes this state with
+Copilot's Stop hook, so an API request has the same effect as the **Toggle TTS
+Chat Mode** command. Keep the extension active while using this endpoint; the
+extension applies the requested hook change on its next synchronization cycle.
+The endpoint is available only while the local server is running.
 
 ## Commands
 
@@ -97,9 +113,7 @@ Run `Copilot TTS: Initialize Copilot TTS` again and inspect the `Copilot TTS Ser
 Run `Copilot TTS: Clean Local TTS Data` before uninstalling. VS Code does not give this extension a reliable uninstall hook, so local cleanup must be triggered explicitly.
 
 ## Support
-If extension helps you, you can support its development on Ko-fi:
-
-<a href="https://ko-fi.com/pavelpiha" target="_blank"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi" height="36"></a>
+If this extension helps you, you can [support its development on Ko-fi](https://ko-fi.com/pavelpiha).
 
 ## License
 

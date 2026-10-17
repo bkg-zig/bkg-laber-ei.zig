@@ -25,7 +25,7 @@ from typing import AsyncGenerator
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, StrictBool, field_validator
 
 # ---------------------------------------------------------------------------
 # Lazy model loading
@@ -75,6 +75,7 @@ app = FastAPI(
     version="0.1.0",
     lifespan=_lifespan,
 )
+app.state.chat_mode_enabled = False
 
 
 # ---------------------------------------------------------------------------
@@ -133,6 +134,10 @@ class SynthesizeRequest(BaseModel):
         return v
 
 
+class ChatModeRequest(BaseModel):
+    enabled: StrictBool
+
+
 def _resolve_sample_rate(tts: object) -> int:
     for attr in ("sample_rate", "sampling_rate", "sr"):
         value = getattr(tts, attr, None)
@@ -185,6 +190,19 @@ async def health() -> dict:
 async def list_voices() -> dict:
     """Return the list of available preset voice names."""
     return {"voices": sorted(KNOWN_VOICES)}
+
+
+@app.get("/chat-mode")
+async def get_chat_mode() -> dict:
+    """Return the requested chat-mode state for the VS Code extension."""
+    return {"enabled": bool(app.state.chat_mode_enabled)}
+
+
+@app.put("/chat-mode")
+async def set_chat_mode(req: ChatModeRequest) -> dict:
+    """Set chat mode; the VS Code extension applies the Copilot hook change."""
+    app.state.chat_mode_enabled = req.enabled
+    return {"enabled": app.state.chat_mode_enabled}
 
 
 @app.post("/synthesize")

@@ -104,6 +104,25 @@ class TestSynthesizeEndpoint:
         assert resp.status_code == 200
         assert resp.json()["status"] == "ok"
 
+    def test_chat_mode_can_be_read_and_changed(self, client):
+        assert client.put("/chat-mode", json={"enabled": False}).json() == {
+            "enabled": False
+        }
+        assert client.get("/chat-mode").json() == {"enabled": False}
+
+        disabled = client.put("/chat-mode", json={"enabled": False})
+        assert disabled.status_code == 200
+        assert disabled.json() == {"enabled": False}
+
+        enabled = client.put("/chat-mode", json={"enabled": True})
+        assert enabled.status_code == 200
+        assert enabled.json() == {"enabled": True}
+        assert client.get("/chat-mode").json() == {"enabled": True}
+
+    def test_chat_mode_rejects_invalid_state(self, client):
+        resp = client.put("/chat-mode", json={"enabled": "yes"})
+        assert resp.status_code == 422
+
     def test_synthesize_short_text_returns_wav(self, client):
         resp = client.post(
             "/synthesize",

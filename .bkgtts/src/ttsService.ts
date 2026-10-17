@@ -100,6 +100,38 @@ export class TtsService {
     this.log(`[TTS mode] chatModeEnabled=${enabled}`);
   }
 
+  async getServerChatMode(): Promise<boolean> {
+    const port = this._activePort;
+    if (!this._isReady || port === undefined) {
+      throw new Error("TTS server is not ready");
+    }
+    const response = await this._requestJson<{ enabled: unknown }>(
+      port,
+      "GET",
+      "/chat-mode",
+    );
+    if (typeof response.enabled !== "boolean") {
+      throw new Error("TTS server returned an invalid chat-mode state");
+    }
+    return response.enabled;
+  }
+
+  async setServerChatMode(enabled: boolean): Promise<void> {
+    const port = this._activePort;
+    if (!this._isReady || port === undefined) {
+      return;
+    }
+    const response = await this._requestJson<{ enabled: unknown }>(
+      port,
+      "PUT",
+      "/chat-mode",
+      { enabled },
+    );
+    if (response.enabled !== enabled) {
+      throw new Error("TTS server did not apply the requested chat-mode state");
+    }
+  }
+
   setStatusBar(item: vscode.StatusBarItem): void {
     this._statusBar = item;
   }
@@ -842,6 +874,20 @@ export class TtsService {
       return false;
     }
 
+    const supportsChatModeApi = await this._requestJson<{ enabled: unknown }>(
+      port,
+      "GET",
+      "/chat-mode",
+    )
+      .then((response) => typeof response.enabled === "boolean")
+      .catch(() => false);
+    if (!supportsChatModeApi) {
+      this.log(
+        `[WARN] TTS server on 127.0.0.1:${port} does not support the Chat Mode API; starting a compatible server on another port`,
+      );
+      return false;
+    }
+
     this._isReady = true;
     this._activePort = port;
     this._updateStatus("$(unmute) TTS: ready", false);
@@ -1124,6 +1170,63 @@ export class TtsService {
         reject();
       });
       req.on("error", reject);
+    });
+  }
+
+  private _requestJson<T>(
+    port: number,
+    method: "GET" | "PUT",
+    requestPath: string,
+    body?: object,
+  ): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const payload = body ? JSON.stringify(body) : undefined;
+      const req = http.request(
+        {
+          hostname: "127.0.0.1",
+          port,
+          path: requestPath,
+          method,
+          headers: payload
+            ? {
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(payload),
+              }
+            : undefined,
+        },
+        (res) => {
+          const chunks: Buffer[] = [];
+          res.on("data", (chunk: Buffer) => chunks.push(chunk));
+          res.on("end", () => {
+            const responseBody = Buffer.concat(chunks).toString("utf8");
+            if (res.statusCode !== 200) {
+              reject(
+                new Error(
+                  `TTS server ${requestPath} failed with HTTP ${res.statusCode}: ${responseBody}`,
+                ),
+              );
+              return;
+            }
+            try {
+              resolve(JSON.parse(responseBody) as T);
+            } catch (error) {
+              reject(
+                new Error(
+                  `TTS server ${requestPath} returned invalid JSON: ${error instanceof Error ? error.message : String(error)}`,
+                ),
+              );
+            }
+          });
+        },
+      );
+      req.setTimeout(2_000, () => {
+        req.destroy(new Error(`Timed out requesting TTS server ${requestPath}`));
+      });
+      req.on("error", reject);
+      if (payload) {
+        req.write(payload);
+      }
+      req.end();
     });
   }
 }

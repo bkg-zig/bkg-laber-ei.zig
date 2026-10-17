@@ -10,3 +10,6 @@ out/test/**
 !out/**
 tsconfig.json
 copilot/**
+**/__pycache__/**
+**/.pytest_cache/**
+server/test_*.py

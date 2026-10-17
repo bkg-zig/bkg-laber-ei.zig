@@ -23,12 +23,18 @@ export class TtsChatMode implements vscode.Disposable {
   private _enabled = false;
   private _modeBar: vscode.StatusBarItem | undefined;
   private readonly _hookProvider: TtsHookProvider;
+  private readonly _serverModePoller: ReturnType<typeof setInterval>;
+  private _syncingServerMode = false;
+  private _lastServerModeError = "";
 
   constructor(
     private readonly _context: vscode.ExtensionContext,
     private readonly _ttsService: TtsService,
   ) {
     this._hookProvider = new TtsHookProvider(_context, _ttsService);
+    this._serverModePoller = setInterval(() => {
+      void this._syncServerMode();
+    }, 1_000);
   }
 
   // ── Public API ──────────────────────────────────────────────────────────
@@ -127,6 +133,7 @@ export class TtsChatMode implements vscode.Disposable {
   }
 
   dispose(): void {
+    clearInterval(this._serverModePoller);
     this._hookProvider.dispose();
     this._modeBar?.dispose();
   }
@@ -135,7 +142,7 @@ export class TtsChatMode implements vscode.Disposable {
 
   private async _setEnabled(
     enabled: boolean,
-    source: "toggle" | "enable" | "disable" | "restore",
+    source: "toggle" | "enable" | "disable" | "restore" | "api",
   ): Promise<void> {
     if (this._enabled === enabled) {
       if (enabled) {
@@ -169,6 +176,7 @@ export class TtsChatMode implements vscode.Disposable {
     } else {
       await this._hookProvider.setEnabled(false);
     }
+    await this._updateServerMode(enabled);
   }
 
   private _updateModeBar(): void {
@@ -191,7 +199,7 @@ export class TtsChatMode implements vscode.Disposable {
   }
 
   private async _ensureServerReady(
-    source: "toggle" | "enable" | "disable" | "restore",
+    source: "toggle" | "enable" | "disable" | "restore" | "api",
   ): Promise<boolean> {
     if (this._ttsService.isReady) {
       this._ttsService.log("[TTS ChatMode] TTS server already ready");
@@ -224,6 +232,45 @@ export class TtsChatMode implements vscode.Disposable {
       }
 
       return false;
+    }
+  }
+
+  private async _syncServerMode(): Promise<void> {
+    if (this._syncingServerMode || !this._ttsService.isReady) {
+      return;
+    }
+    this._syncingServerMode = true;
+    try {
+      const serverMode = await this._ttsService.getServerChatMode();
+      this._lastServerModeError = "";
+      if (serverMode !== this._enabled) {
+        await this._setEnabled(serverMode, "api");
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (message !== this._lastServerModeError) {
+        this._ttsService.log(
+          `[TTS ChatMode] server API synchronization failed: ${message}`,
+        );
+        this._lastServerModeError = message;
+      }
+    } finally {
+      this._syncingServerMode = false;
+    }
+  }
+
+  private async _updateServerMode(enabled: boolean): Promise<void> {
+    if (!this._ttsService.isReady) {
+      return;
+    }
+    try {
+      await this._ttsService.setServerChatMode(enabled);
+      this._lastServerModeError = "";
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this._ttsService.log(
+        `[TTS ChatMode] failed to publish chat-mode state to server: ${message}`,
+      );
     }
   }
 }

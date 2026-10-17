@@ -6,6 +6,7 @@ import { AudioPlayer } from "./audioPlayer";
 import { TtsControlPanelProvider } from "./ttsControlPanel";
 import { runInitialize } from "./initializer";
 import { TtsChatMode } from "./ttsChatMode";
+import { TtsFilesView } from "./ttsFilesView";
 
 let audioPlayer: AudioPlayer;
 let ttsService: TtsService;
@@ -75,6 +76,21 @@ export async function activate(
   audioPlayer = new AudioPlayer();
   ttsService = new TtsService(audioPlayer);
   ttsService.setGlobalStorageUri(context.globalStorageUri);
+  const ttsFilesView = new TtsFilesView(context.globalStorageUri);
+  context.subscriptions.push(
+    ttsFilesView,
+    vscode.window.registerTreeDataProvider("copilot-tts.files", ttsFilesView),
+    vscode.commands.registerCommand("copilot-tts.refreshFiles", () =>
+      ttsFilesView.refresh(),
+    ),
+    vscode.commands.registerCommand(
+      "copilot-tts.openFile",
+      async (uri: vscode.Uri) => {
+        const document = await vscode.workspace.openTextDocument(uri);
+        await vscode.window.showTextDocument(document, { preview: false });
+      },
+    ),
+  );
 
   // ── Output channel — created immediately so all log lines are captured ───
   // (must come before startServer so server stdout/stderr and session logs
@@ -84,9 +100,10 @@ export async function activate(
   ttsService.setOutputChannel(outputChannel);
   ttsService.log("[TTS activate] extension activated");
   context.subscriptions.push(
-    vscode.commands.registerCommand("copilot-tts.initialize", () =>
-      runInitialize(context, ttsService),
-    ),
+    vscode.commands.registerCommand("copilot-tts.initialize", async () => {
+      await runInitialize(context, ttsService);
+      ttsFilesView.refresh();
+    }),
   );
   ttsService.log(
     `[TTS activate] activeChatSessionApi=${String(Boolean((vscode.window as any).onDidChangeActiveChatPanelSessionResource))}`,
@@ -133,6 +150,7 @@ export async function activate(
         ttsService.clearLastResponseText();
       }
       syncChatModeStatusBars(ttsChatMode.isEnabled, [statusBar, speedBar]);
+      ttsFilesView.refresh();
       const state = ttsChatMode.isEnabled ? "ENABLED" : "DISABLED";
       ttsService.log(`[TTS command] toggleChatMode completed state=${state}`);
       vscode.window.showInformationMessage(`Copilot TTS Chat Mode ${state}. `);
