@@ -1,0 +1,16 @@
+{
+  "tasks": [
+    {
+      "id": "bkgdb-storage-core-v1.1",
+      "title": "BKGDB Storage Core v1.1",
+      "owner": "assistant",
+      "status": "analysis",
+      "scope": "Echter Disk-WAL, Byte-Hash-Konsistenz, Ed25519-Verify voll, gehärtete Delegation, State Root+Causal Fingerprint deterministisch, Crash-Recovery-E2E-Test bit-genau",
+      "start_time": "2026-09-01T05:10:00Z",
+      "changed_files": [],
+      "commands_run": [],
+      "verification": "zig build && zig test; Crash-Test beweist bitgleichen State Root + Fingerprint nach hartem Absturz",
+      "blockers": []
+    }
+  ]
+}

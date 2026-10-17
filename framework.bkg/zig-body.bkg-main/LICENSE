@@ -1,0 +1,83 @@
+BKG COMMUNITY & COMMERCIAL LICENSE
+Version 1.0 — 2026-09-03
+
+Copyright © 2026 BKG. All rights reserved.
+
+1. SCOPE
+This license applies only to original BKG-owned source code, documentation,
+configuration, and other material distributed with this notice. Third-party
+components remain under their own licenses and are not relicensed by this
+notice.
+
+2. FREE COMMUNITY USE
+The copyright holder grants a worldwide, non-exclusive, royalty-free license
+for the following uses:
+
+- Personal: private, non-commercial use.
+- Education: study, teaching, courses, training, and educational projects.
+- Thesis: bachelor, master, doctoral, and comparable academic work, including
+  research and publication of the resulting academic work.
+
+These grants include the right to use, copy, modify, and build upon the covered
+BKG material for the stated purposes.
+
+3. PROFESSIONAL USE
+An individual may use the covered BKG material in professional employment or
+contract work under a Professional License, provided that BKG itself is not
+offered to third parties as a monetized product or service. The user's own
+skills, source code, consulting work, and other independently created work are
+not restricted by this clause.
+
+4. COMMERCIAL USE
+A Commercial License is required when the covered BKG material itself is used
+as part of a monetized product or service, including software sold to
+customers, SaaS, hosted BKG services, managed services, paid APIs, commercial
+distribution, advertising-funded operation, affiliate-funded operation, or
+other activity where the BKG-based offering generates revenue.
+
+A company or organization using BKG internally for a revenue-generating
+business requires a Commercial License unless its written license agreement
+expressly grants that use under another tier.
+
+5. STARTUP AND ENTERPRISE
+Startup and Enterprise licenses may grant additional commercial rights,
+including broader deployment, distribution, support, and organizational use.
+Their scope, pricing, term, and conditions are defined by the applicable
+written agreement.
+
+6. DISTRIBUTION
+Community-tier recipients may distribute their own academic, educational, or
+private modifications only to the extent necessary for the permitted purpose
+and only with this license notice and all applicable third-party notices.
+Commercial distribution requires a Commercial or Enterprise License.
+
+7. TRADEMARKS
+This license does not grant rights to use BKG trademarks, logos, project names,
+or branding except as necessary to accurately identify the covered software.
+
+8. NO TRANSFER OF THIRD-PARTY RIGHTS
+Nothing in this license changes the license of Zig or any other third-party
+component. Where a repository contains an upstream project or submodule, the
+upstream project's license continues to govern that material.
+
+9. NO WARRANTY
+THE COVERED MATERIAL IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, TO THE
+MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW. THE COPYRIGHT HOLDER IS NOT LIABLE
+FOR DAMAGES ARISING FROM USE OF THE COVERED MATERIAL, EXCEPT WHERE LIABILITY
+CANNOT LAWFULLY BE EXCLUDED.
+
+10. ACCEPTANCE AND TERMINATION
+Use outside the granted permissions is not licensed. Rights under this license
+terminate automatically upon material breach, subject to any mandatory legal
+cure rights. A valid commercial or enterprise agreement may contain separate
+termination terms.
+
+11. LICENSE IDENTIFIER
+LicenseRef-BKG-Community-Commercial-1.0
+
+12. CONTACT
+Commercial and Enterprise licensing is handled by the BKG project copyright
+holder through the official BKG licensing channel.
+
+This document is a project license draft and should receive jurisdiction-
+appropriate legal review before being used as the final contractual license.
